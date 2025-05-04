@@ -1,0 +1,2 @@
+/Users/nishan/Documents/productify/android/app/.cxx/Debug/601e2w4m/x86/CMakeFiles/edit_cache.dir
+/Users/nishan/Documents/productify/android/app/.cxx/Debug/601e2w4m/x86/CMakeFiles/rebuild_cache.dir

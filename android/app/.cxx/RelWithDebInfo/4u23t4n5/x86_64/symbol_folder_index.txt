@@ -1,0 +1,1 @@
+/Users/nishan/Documents/productify/build/app/intermediates/cxx/RelWithDebInfo/4u23t4n5/obj/x86_64

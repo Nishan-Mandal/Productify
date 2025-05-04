@@ -1,0 +1,2 @@
+/Users/nishan/Documents/productify/android/app/.cxx/RelWithDebInfo/4u23t4n5/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/nishan/Documents/productify/android/app/.cxx/RelWithDebInfo/4u23t4n5/arm64-v8a/CMakeFiles/rebuild_cache.dir

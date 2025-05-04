@@ -45,9 +45,7 @@ class LocalNotifications {
         await _loadAssetAsFile('assets/images/reminder.png');
     final BigPictureStyleInformation bigPictureStyleInformation =
         BigPictureStyleInformation(
-      FilePathAndroidBitmap(bigPicturePath),
-      // contentTitle: 'Big Picture Notification',
-      // summaryText: 'This is a summary of the notification',
+      FilePathAndroidBitmap(bigPicturePath)
     );
 
     var androidDetails = AndroidNotificationDetails(

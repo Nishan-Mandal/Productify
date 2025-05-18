@@ -274,30 +274,25 @@ class _HomeTRState extends State<HomeTR> {
             left: 16, // Padding from the left
             child: GestureDetector(
               onTap: () {
-                // Handle back action
+                Navigator.pop(context);
               },
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.chevron_left,
-                    color: Colors.black,
-                  ),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.chevron_left,
+                  color: Colors.black,
                 ),
               ),
             ),

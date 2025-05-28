@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
 import 'package:productify/screens/TaskReminder/home_tr.dart';
 import 'package:productify/utils/WeatherService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/weather.dart';
 import 'TaskReminder/CustomWidgets/liveClock.dart';
 import 'package:weather_icons/weather_icons.dart';
@@ -17,38 +18,94 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late SharedPreferences prefs;
   String _greetingText = '';
   String _weekDay = '';
   Color textColor = Colors.white70;
   double weatherDetailsTextSize = 10;
+  bool isCurrentWeather = false;
+  bool isInProgress = false;
 
+  Map<String, String> weatherDetailsMap = {
+    'Temperature': '25',
+    'Location': 'Washington',
+    'FeelsLike': '28',
+    'Humidity': '51',
+    'Wind': '28.91',
+    'Cloud': 'scattered clouds',
+    'WeatherIcon': '10n'
+  };
+
+
+  Future<Map<String, String>> getLastWeatherDetails() async {
+    Map<String, String> weatherDetailsMap = Map();
+    
+     List<String>? weatherDetailsList = prefs.getStringList('lastWeatherDetails');
+     if(weatherDetailsList != null){
+      weatherDetailsMap['Temperature'] = weatherDetailsList![0];
+      weatherDetailsMap['Location'] = weatherDetailsList[1];
+      weatherDetailsMap['FeelsLike'] = weatherDetailsList[2];
+      weatherDetailsMap['Humidity'] = weatherDetailsList[3];
+      weatherDetailsMap['Wind'] = weatherDetailsList[4];
+      weatherDetailsMap['WeatherDescription'] = weatherDetailsList[5];
+      weatherDetailsMap['WeatherIcon'] = weatherDetailsList[6];
+     }
+     return weatherDetailsMap;
+  }
+
+  Future<Map<String, String>> getCurrentWeatherDetails() async {
+    Map<String, String> currentWeatherDetailsMap = Map();
+    List<String> currentWeatherDetailsList = [];
+    Weather? weather = await _fetchWeather();
+    currentWeatherDetailsMap['Temperature'] = '${weather?.temperature.toString().split('.')[0]}°';
+    currentWeatherDetailsMap['Location'] = '${weather?.areaName}';
+    currentWeatherDetailsMap['FeelsLike'] = '${weather?.tempFeelsLike}';
+    currentWeatherDetailsMap['Humidity'] = '${weather?.humidity}';
+    currentWeatherDetailsMap['Wind'] = (weather!.windSpeed! * 3.6).toStringAsFixed(2);
+    currentWeatherDetailsMap['WeatherDescription'] = '${weather.weatherDescription}';
+    currentWeatherDetailsMap['WeatherIcon'] = '${weather.weatherIcon}';
+
+    currentWeatherDetailsList.add(currentWeatherDetailsMap['Temperature']!);
+    currentWeatherDetailsList.add(currentWeatherDetailsMap['Location']!);
+    currentWeatherDetailsList.add(currentWeatherDetailsMap['FeelsLike']!);
+    currentWeatherDetailsList.add(currentWeatherDetailsMap['Humidity']!);
+    currentWeatherDetailsList.add(currentWeatherDetailsMap['Wind']!);
+    currentWeatherDetailsList.add(currentWeatherDetailsMap['WeatherDescription']!);
+    currentWeatherDetailsList.add(currentWeatherDetailsMap['WeatherIcon']!);
+    
+    await prefs.setStringList('lastWeatherDetails', currentWeatherDetailsList);
+    isCurrentWeather = true;
+
+    return currentWeatherDetailsMap;
+  }
+  
   @override
   void initState() {
+    super.initState();
+
     _greetingText = getGreeting();
     _weekDay = getCurrentWeekDay();
-    _fetchWeather();
     if (_greetingText == 'Morning' || _greetingText == 'Afternoon') {
       textColor = Colors.black;
     }
-    super.initState();
+     // Call async method without await
+    _initAsyncData();
   }
 
-  Weather? _weather;
-  String? _windSpeedKph;
+  Future<void> _initAsyncData() async {
+    prefs = await SharedPreferences.getInstance();
+    Map<String, String> fetchedDetails = await getLastWeatherDetails();
+    if (fetchedDetails.isNotEmpty) {
+      weatherDetailsMap = fetchedDetails;
+    }
+    setState(() {});
+  }
 
-  Future<void> _fetchWeather() async {
-
+  Future<Weather?> _fetchWeather() async {
     Position? currentPosition = await WeatherService.getCurrentLocation();
-
     Weather? weather = await WeatherService.getWeather(
-        currentPosition!.latitude, currentPosition.longitude);
-
-    setState(() {
-      _weather = weather;
-      if (_weather?.windSpeed != null) {
-        _windSpeedKph = (_weather!.windSpeed! * 3.6).toStringAsFixed(2);
-      }
-    });
+    currentPosition!.latitude, currentPosition.longitude);
+    return weather;
   }
 
   String getGreeting() {
@@ -153,30 +210,30 @@ class _HomeState extends State<Home> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _weather != null ?Text(
-                            '${_weather?.temperature.toString().split('.')[0]}°',
+                          Text(
+                            '${weatherDetailsMap['Temperature']}',
                             style: TextStyle(
                                 fontSize: 35,
                                 fontWeight: FontWeight.bold,
                                 height: 1.0,
                                 color: textColor),
-                          ):SizedBox()
+                          )
                         ],
                       ),
                       Row(
                         children: [
                           Text(
-                            '${_weather == null ? ' ' : _weather?.areaName}',
+                            '${weatherDetailsMap['Location']}',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                                 color: textColor),
                           ),
-                          _weather!=null?Icon(
+                          Icon(
                             Icons.location_on,
                             size: 13,
                             color: textColor,
-                          ):SizedBox()
+                          )
                         ],
                       ),
                     ],
@@ -213,7 +270,7 @@ class _HomeState extends State<Home> {
               width: double.infinity,
               height: 80,
               alignment: Alignment.center,
-              margin: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
+              margin: EdgeInsets.only(left: 25, right: 25, top: 20, bottom: 20),
               decoration: BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.only(
@@ -224,16 +281,22 @@ class _HomeState extends State<Home> {
                 border: Border.all(width: 1, color: Colors.black38),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  _weather == null ?CircularProgressIndicator(): Image.network(
-                    'https://openweathermap.org/img/wn/${_weather?.weatherIcon}@2x.png',
+                  isCurrentWeather?Image.network(
+                    'https://openweathermap.org/img/wn/${weatherDetailsMap['WeatherIcon']}@2x.png',
                     fit: BoxFit.fill,
-                  ),
+                  ):isInProgress?CircularProgressIndicator():IconButton(onPressed: () async {
+                    isInProgress = true;
+                    setState(() {});
+                    weatherDetailsMap = await getCurrentWeatherDetails();
+                    isInProgress = false;
+                    setState(() {});
+                  }, icon: Icon(Icons.refresh, size: 40,)),
                   SizedBox(
-                    width: 10,
+                    width: 20,
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -249,7 +312,7 @@ class _HomeState extends State<Home> {
                             size: 12,
                           ),
                           Text(
-                            '  Feels like ${_weather?.tempFeelsLike.toString().split('.')[0]}° \n',
+                            '  Feels like ${weatherDetailsMap['FeelsLike']?.split('.')[0]}° \n',
                             style: TextStyle(fontSize: weatherDetailsTextSize),
                           ),
                         ],
@@ -262,7 +325,7 @@ class _HomeState extends State<Home> {
                             size: 15,
                           ),
                           Text(
-                            ' Winds ${_windSpeedKph} Kph',
+                            ' Winds ${weatherDetailsMap['Wind']} Kph',
                             style: TextStyle(fontSize: weatherDetailsTextSize),
                           ),
                         ],
@@ -286,7 +349,7 @@ class _HomeState extends State<Home> {
                             size: 12,
                           ),
                           Text(
-                            ' Humidity ${_weather?.humidity.toString().split('.')[0]}% \n',
+                            ' Humidity ${weatherDetailsMap['Humidity']?.split('.')[0]}% \n',
                             style: TextStyle(fontSize: weatherDetailsTextSize),
                           ),
                         ],
@@ -301,7 +364,7 @@ class _HomeState extends State<Home> {
                             size: 15,
                           ),
                           Text(
-                            ' ${_weather?.weatherDescription}',
+                            ' ${weatherDetailsMap['WeatherDescription']}',
                             style: TextStyle(fontSize: weatherDetailsTextSize),
                           ),
                         ],
@@ -352,26 +415,22 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 50, right: 50, bottom: 30, top: 10),
-              child: RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Tip of day: ',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          color: Colors.black),
-                    ),
-                    TextSpan(
-                      text:
-                          'Continue to set new goals. Think about what you want ',
-                      style: TextStyle(color: Colors.black, fontSize: 10),
-                    ),
-                  ],
-                ),
+            RichText(
+              text: TextSpan(
+                children: <TextSpan>[
+                  TextSpan(
+                    text: 'Tip of day: ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                        color: Colors.black),
+                  ),
+                  TextSpan(
+                    text:
+                        'Continue to set new goals. Think about what you want ',
+                    style: TextStyle(color: Colors.black, fontSize: 10),
+                  ),
+                ],
               ),
             ),
           ],

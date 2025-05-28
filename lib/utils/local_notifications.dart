@@ -44,15 +44,13 @@ class LocalNotifications {
     final String bigPicturePath =
         await _loadAssetAsFile('assets/images/reminder.png');
     final BigPictureStyleInformation bigPictureStyleInformation =
-        BigPictureStyleInformation(
-      FilePathAndroidBitmap(bigPicturePath)
-    );
+        BigPictureStyleInformation(FilePathAndroidBitmap(bigPicturePath));
 
     var androidDetails = AndroidNotificationDetails(
       '${DateTime.now().microsecondsSinceEpoch}',
       'Notification Channel Name',
       importance: Importance.max,
-      priority: Priority.high,
+      priority: Priority.max,
       showWhen: true,
       sound: RawResourceAndroidNotificationSound('reminder'),
       playSound: true,
@@ -72,7 +70,7 @@ class LocalNotifications {
             payload: id,
             tz.TZDateTime.from(scheduleDateTime, tz.local),
             notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            androidScheduleMode: AndroidScheduleMode.alarmClock,
             uiLocalNotificationDateInterpretation:
                 UILocalNotificationDateInterpretation.wallClockTime,
             matchDateTimeComponents: DateTimeComponents.time,
@@ -87,7 +85,7 @@ class LocalNotifications {
             payload: id,
             tz.TZDateTime.from(scheduleDateTime, tz.local),
             notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            androidScheduleMode: AndroidScheduleMode.alarmClock,
             uiLocalNotificationDateInterpretation:
                 UILocalNotificationDateInterpretation.wallClockTime,
             matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
@@ -102,7 +100,7 @@ class LocalNotifications {
             payload: id,
             tz.TZDateTime.from(scheduleDateTime, tz.local),
             notificationDetails,
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            androidScheduleMode: AndroidScheduleMode.alarmClock,
             uiLocalNotificationDateInterpretation:
                 UILocalNotificationDateInterpretation.wallClockTime,
             matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
@@ -120,7 +118,7 @@ class LocalNotifications {
         payload: id,
         tz.TZDateTime.from(scheduleDateTime, tz.local),
         notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.wallClockTime,
       );

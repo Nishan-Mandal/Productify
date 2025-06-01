@@ -27,12 +27,12 @@ class _HomeState extends State<Home> {
   bool isInProgress = false;
 
   Map<String, String> weatherDetailsMap = {
-    'Temperature': '25',
+    'Temperature': '25°',
     'Location': 'Washington',
-    'FeelsLike': '28',
+    'FeelsLike': '28°',
     'Humidity': '51',
     'Wind': '28.91',
-    'Cloud': 'scattered clouds',
+    'WeatherDescription': 'scattered clouds',
     'WeatherIcon': '10n'
   };
 
@@ -404,12 +404,12 @@ class _HomeState extends State<Home> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SvgPicture.asset(
-                  'assets/images/alarmIcon.svg',
+                  'assets/images/AI.svg',
                   height: 150,
                   width: 200,
                 ),
                 SvgPicture.asset(
-                  'assets/images/weatherIcon.svg',
+                  'assets/images/QuestionMark.svg',
                   height: 150,
                   width: 150,
                 ),
